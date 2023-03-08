@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Support\Str;
 use LaravelDaily\Invoices\Contracts\PartyContract;
 use LaravelDaily\Invoices\Services\PricingService;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Trait InvoiceHelpers.
@@ -29,6 +28,83 @@ trait InvoiceHelpers
     public function status(string $status)
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function alamatPerusahaan(string $alamatPerusahaan)
+    {
+        $this->alamatPerusahaan = $alamatPerusahaan;
+
+        return $this;
+    }
+
+    public function websitePerusahaan(string $websitePerusahaan)
+    {
+        $this->websitePerusahaan = $websitePerusahaan;
+
+        return $this;
+    }
+
+    public function getBerlakuSampai(string $getBerlakuSampai)
+    {
+        $this->getBerlakuSampai = $getBerlakuSampai;
+
+        return $this;
+    }
+
+    public function total(string $total)
+    {
+        $this->total = $total;
+
+        return $this;
+    }
+
+    public function discount(string $discount)
+    {
+        $this->discount = $discount;
+
+        return $this;
+    }
+
+    public function subtotal(string $subtotal)
+    {
+        $this->subtotal = $subtotal;
+
+        return $this;
+    }
+
+    public function ongkos_kirim(string $ongkos_kirim)
+    {
+        $this->ongkos_kirim = $ongkos_kirim;
+
+        return $this;
+    }
+
+    public function tax(string $tax)
+    {
+        $this->tax = $tax;
+
+        return $this;
+    }
+
+    public function grand_total(string $grand_total)
+    {
+        $this->grand_total = $grand_total;
+
+        return $this;
+    }
+
+    public function getKodeQuote(string $getKodeQuote)
+    {
+        $this->getKodeQuote = $getKodeQuote;
+
+        return $this;
+    }
+
+    public function validUntilDate(string $validUntilDate)
+    {
+        $this->validUntilDate = $validUntilDate;
 
         return $this;
     }
@@ -58,8 +134,8 @@ trait InvoiceHelpers
             throw new Exception('Invoice: unable to set tax twice.');
         }
 
-        $this->total_taxes              = $amount;
-        ! $byPercent ?: $this->tax_rate = $amount;
+        $this->total_taxes             = $amount;
+        !$byPercent ?: $this->tax_rate = $amount;
 
         return $this;
     }
@@ -107,8 +183,8 @@ trait InvoiceHelpers
             throw new Exception('Invoice: unable to set discount twice.');
         }
 
-        $this->total_discount                      = $total_discount;
-        ! $byPercent ?: $this->discount_percentage = $total_discount;
+        $this->total_discount                     = $total_discount;
+        !$byPercent ?: $this->discount_percentage = $total_discount;
 
         return $this;
     }
@@ -203,9 +279,10 @@ trait InvoiceHelpers
 
     public function getLogo()
     {
-        $file = new File($this->logo);
+        $type = pathinfo($this->logo, PATHINFO_EXTENSION);
+        $data = file_get_contents($this->logo);
 
-        return 'data:' . $file->getMimeType() . ';base64,' . base64_encode($file->getContent());
+        return 'data:image/' . $type . ';base64,' . base64_encode($data);
     }
 
     /**
@@ -213,7 +290,7 @@ trait InvoiceHelpers
      */
     public function hasTax()
     {
-        return ! is_null($this->total_taxes);
+        return !is_null($this->total_taxes);
     }
 
     /**
@@ -221,7 +298,7 @@ trait InvoiceHelpers
      */
     public function hasDiscount()
     {
-        return ! is_null($this->total_discount);
+        return !is_null($this->total_discount);
     }
 
     /**
@@ -229,7 +306,7 @@ trait InvoiceHelpers
      */
     public function hasShipping()
     {
-        return ! is_null($this->shipping_amount);
+        return !is_null($this->shipping_amount);
     }
 
     /**
@@ -237,7 +314,7 @@ trait InvoiceHelpers
      */
     public function hasTotalAmount()
     {
-        return ! is_null($this->total_amount);
+        return !is_null($this->total_amount);
     }
 
     /**
@@ -258,9 +335,9 @@ trait InvoiceHelpers
 
     public function applyColspan(): void
     {
-        (! $this->hasItemUnits) ?: $this->table_columns++;
-        (! $this->hasItemDiscount) ?: $this->table_columns++;
-        (! $this->hasItemTax) ?: $this->table_columns++;
+        (!$this->hasItemUnits) ?: $this->table_columns++;
+        (!$this->hasItemDiscount) ?: $this->table_columns++;
+        (!$this->hasItemTax) ?: $this->table_columns++;
     }
 
     public function calculateDiscount(): void
@@ -325,17 +402,17 @@ trait InvoiceHelpers
     /**
      * @throws Exception
      */
-    public function validate()
+    protected function validate()
     {
-        if (! $this->buyer) {
+        if (!$this->buyer) {
             throw new Exception('Buyer not defined.');
         }
 
-        if (! $this->seller) {
+        if (!$this->seller) {
             throw new Exception('Seller not defined.');
         }
 
-        if (! count($this->items)) {
+        if (!count($this->items)) {
             throw new Exception('No items to invoice defined.');
         }
     }
@@ -343,7 +420,7 @@ trait InvoiceHelpers
     /**
      * @return $this
      */
-    public function calculate()
+    protected function calculate()
     {
         $total_amount   = null;
         $total_discount = null;
@@ -362,7 +439,7 @@ trait InvoiceHelpers
 
                 $item->calculate($this->currency_decimals);
 
-                (! $item->hasUnits()) ?: $this->hasItemUnits = true;
+                (!$item->hasUnits()) ?: $this->hasItemUnits = true;
 
                 if ($item->hasDiscount()) {
                     $total_discount += $item->discount;
@@ -389,7 +466,7 @@ trait InvoiceHelpers
         $this->hasTotalAmount() ?: $this->total_amount                            = $total_amount;
         $this->hasDiscount() ? $this->calculateDiscount() : $this->total_discount = $total_discount;
         $this->hasTax() ? $this->calculateTax() : $this->total_taxes              = $total_taxes;
-        ! $this->hasShipping() ?: $this->calculateShipping();
+        !$this->hasShipping() ?: $this->calculateShipping();
 
         return $this;
     }
