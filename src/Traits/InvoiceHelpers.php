@@ -32,6 +32,83 @@ trait InvoiceHelpers
         return $this;
     }
 
+    public function alamatPerusahaan(string $alamatPerusahaan)
+    {
+        $this->alamatPerusahaan = $alamatPerusahaan;
+
+        return $this;
+    }
+
+    public function websitePerusahaan(string $websitePerusahaan)
+    {
+        $this->websitePerusahaan = $websitePerusahaan;
+
+        return $this;
+    }
+
+    public function getBerlakuSampai(string $getBerlakuSampai)
+    {
+        $this->getBerlakuSampai = $getBerlakuSampai;
+
+        return $this;
+    }
+
+    public function total(string $total)
+    {
+        $this->total = $total;
+
+        return $this;
+    }
+
+    public function discount(string $discount)
+    {
+        $this->discount = $discount;
+
+        return $this;
+    }
+
+    public function subtotal(string $subtotal)
+    {
+        $this->subtotal = $subtotal;
+
+        return $this;
+    }
+
+    public function ongkos_kirim(string $ongkos_kirim)
+    {
+        $this->ongkos_kirim = $ongkos_kirim;
+
+        return $this;
+    }
+
+    public function tax(string $tax)
+    {
+        $this->tax = $tax;
+
+        return $this;
+    }
+
+    public function grand_total(string $grand_total)
+    {
+        $this->grand_total = $grand_total;
+
+        return $this;
+    }
+
+    public function getKodeQuote(string $getKodeQuote)
+    {
+        $this->getKodeQuote = $getKodeQuote;
+
+        return $this;
+    }
+
+    public function validUntilDate(string $validUntilDate)
+    {
+        $this->validUntilDate = $validUntilDate;
+
+        return $this;
+    }
+
     public function notes(string $notes)
     {
         $this->notes = $notes;
@@ -376,7 +453,8 @@ trait InvoiceHelpers
 
                 // Totals
                 $total_amount += $item->sub_total_price;
-            });
+            }
+        );
 
         $this->applyColspan();
 
